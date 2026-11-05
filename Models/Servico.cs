@@ -1,0 +1,11 @@
+namespace aspnet_api_scheduling.Models;
+
+public sealed class Servico
+{
+    public int Id { get; set; }
+    public required string Nome { get; set; }
+    public decimal Preco { get; set; }
+    public int DuracaoMinutos { get; set; }
+    public bool Ativo { get; set; }
+    public ICollection<Agendamento> Agendamentos { get; set; } = [];
+}

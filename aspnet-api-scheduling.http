@@ -1,6 +1,43 @@
-@aspnet_api_scheduling_HostAddress = http://localhost:5194
+@baseUrl = http://localhost:5194
+@barbeiroId = 1
+@servicoId = 1
+@agendamentoId = 1
 
-GET {{aspnet_api_scheduling_HostAddress}}/weatherforecast/
-Accept: application/json
+### OpenAPI
+GET {{baseUrl}}/openapi/v1.json
 
-###
+### Serviços ativos
+GET {{baseUrl}}/api/servicos
+
+### Barbeiros ativos
+GET {{baseUrl}}/api/barbeiros
+
+### Horários disponíveis (sem preferência de barbeiro)
+GET {{baseUrl}}/api/agendamentos/horarios-disponiveis?data=2026-11-10&servicoId={{servicoId}}
+
+### Horários disponíveis para um barbeiro
+GET {{baseUrl}}/api/agendamentos/horarios-disponiveis?data=2026-11-10&servicoId={{servicoId}}&barbeiroId={{barbeiroId}}
+
+### Criar agendamento (cliente de demonstração: clienteId 1)
+POST {{baseUrl}}/api/agendamentos
+Content-Type: application/json
+
+{
+  "clienteId": 1,
+  "servicoId": 1,
+  "dataHoraInicio": "2026-11-10T08:00:00-03:00",
+  "naoQueroConversar": true,
+  "observacao": "Prefiro atendimento em silêncio."
+}
+
+### Buscar agendamento criado
+GET {{baseUrl}}/api/agendamentos/{{agendamentoId}}
+
+### Agenda diária de barbeiro
+GET {{baseUrl}}/api/agendamentos/barbeiro/{{barbeiroId}}?data=2026-11-10
+
+### Cancelar agendamento
+PATCH {{baseUrl}}/api/agendamentos/{{agendamentoId}}/cancelar
+
+### Erro esperado: barbeiro inexistente
+GET {{baseUrl}}/api/agendamentos/barbeiro/99999?data=2026-11-10
