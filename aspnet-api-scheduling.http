@@ -1,0 +1,6 @@
+@aspnet_api_scheduling_HostAddress = http://localhost:5194
+
+GET {{aspnet_api_scheduling_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
