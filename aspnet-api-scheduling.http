@@ -9,8 +9,49 @@ GET {{baseUrl}}/openapi/v1.json
 ### Serviços ativos
 GET {{baseUrl}}/api/servicos
 
+### Cadastrar serviço
+POST {{baseUrl}}/api/servicos
+Content-Type: application/json
+
+{
+  "nome": "Barba tradicional",
+  "preco": 35.00,
+  "duracaoMinutos": 30
+}
+
+### Consultar serviço por ID (substitua pelo ID retornado no cadastro)
+GET {{baseUrl}}/api/servicos/4
+
 ### Barbeiros ativos
 GET {{baseUrl}}/api/barbeiros
+
+### Cadastrar barbeiro
+POST {{baseUrl}}/api/barbeiros
+Content-Type: application/json
+
+{
+  "nome": "Carlos Lima",
+  "fotoUrl": "https://example.com/fotos/carlos.jpg"
+}
+
+### Consultar barbeiro por ID (substitua pelo ID retornado no cadastro)
+GET {{baseUrl}}/api/barbeiros/3
+
+### Listar clientes
+GET {{baseUrl}}/api/clientes
+
+### Cadastrar cliente
+POST {{baseUrl}}/api/clientes
+Content-Type: application/json
+
+{
+  "nome": "Maria Oliveira",
+  "telefone": "(11) 98888-7777",
+  "email": "maria.oliveira@example.com"
+}
+
+### Consultar cliente por ID (substitua pelo ID retornado no cadastro)
+GET {{baseUrl}}/api/clientes/2
 
 ### Horários disponíveis (sem preferência de barbeiro)
 GET {{baseUrl}}/api/agendamentos/horarios-disponiveis?data=2026-11-10&servicoId={{servicoId}}

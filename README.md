@@ -37,8 +37,15 @@ No ambiente Development, o documento OpenAPI fica em `http://localhost:5194/open
 
 | Método | Rota | Descrição |
 |---|---|---|
+| GET | `/api/clientes` | Lista clientes cadastrados |
+| GET | `/api/clientes/{id}` | Consulta cliente |
+| POST | `/api/clientes` | Cadastra cliente (e-mail único) |
 | GET | `/api/servicos` | Lista serviços ativos |
+| GET | `/api/servicos/{id}` | Consulta serviço |
+| POST | `/api/servicos` | Cadastra serviço ativo |
 | GET | `/api/barbeiros` | Lista barbeiros ativos |
+| GET | `/api/barbeiros/{id}` | Consulta barbeiro |
+| POST | `/api/barbeiros` | Cadastra barbeiro ativo |
 | GET | `/api/agendamentos/horarios-disponiveis?data=YYYY-MM-DD&servicoId=X&barbeiroId=Y` | Retorna horários agrupados em `manha`, `tarde` e `noite`; barbeiro opcional |
 | POST | `/api/agendamentos` | Cria um agendamento |
 | GET | `/api/agendamentos/{id}` | Consulta um agendamento |
@@ -46,3 +53,5 @@ No ambiente Development, o documento OpenAPI fica em `http://localhost:5194/open
 | PATCH | `/api/agendamentos/{id}/cancelar` | Cancela um agendamento |
 
 O POST recebe `clienteId`, `servicoId`, `dataHoraInicio`, `naoQueroConversar`, `observacao` e `barbeiroId` opcional. A duração do serviço determina `dataHoraFim`.
+
+Os endpoints `POST /api/clientes`, `POST /api/barbeiros` e `POST /api/servicos` permitem cadastrar os dados necessários pela própria API. Todos validam o payload e respondem `201 Created` com `Location` para consultar o registro; e-mail duplicado retorna `409 Conflict`. Os exemplos de cadastro estão no arquivo `.http`.
