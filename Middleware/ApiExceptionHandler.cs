@@ -19,11 +19,23 @@ public sealed class ApiExceptionHandler(ILogger<ApiExceptionHandler> logger) : I
                 exception.Message),
             BusinessConflictException => (
                 StatusCodes.Status409Conflict,
-                "Conflito de agendamento",
+                "Conflito de dados",
                 exception.Message),
             BusinessRuleException => (
                 StatusCodes.Status400BadRequest,
                 "Regra de negócio inválida",
+                exception.Message),
+            InvalidProvisioningTokenException => (
+                StatusCodes.Status401Unauthorized,
+                "Autenticação necessária",
+                exception.Message),
+            BootstrapUnavailableException => (
+                StatusCodes.Status503ServiceUnavailable,
+                "Provisionamento indisponível",
+                exception.Message),
+            IdentityOperationException => (
+                StatusCodes.Status400BadRequest,
+                "Dados de conta inválidos",
                 exception.Message),
             _ => (0, string.Empty, string.Empty)
         };

@@ -73,7 +73,7 @@ public sealed class CatalogService(AppDbContext dbContext) : ICatalogService
     public async Task<ServicoResponse?> GetServicoByIdAsync(int id, CancellationToken cancellationToken) =>
         await dbContext.Servicos
             .AsNoTracking()
-            .Where(servico => servico.Id == id)
+            .Where(servico => servico.Id == id && servico.Ativo)
             .Select(servico => new ServicoResponse(
                 servico.Id,
                 servico.Nome,
@@ -95,6 +95,103 @@ public sealed class CatalogService(AppDbContext dbContext) : ICatalogService
         dbContext.Servicos.Add(servico);
         await dbContext.SaveChangesAsync(cancellationToken);
         return ToResponse(servico);
+    }
+
+    public async Task<ServicoResponse?> UpdateServicoAsync(
+        int id,
+        UpdateServicoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var servico = await dbContext.Servicos
+            .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (servico is null)
+        {
+            return null;
+        }
+
+        servico.Nome = request.Nome.Trim();
+        servico.Preco = request.Preco;
+        servico.DuracaoMinutos = request.DuracaoMinutos;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return ToResponse(servico);
+    }
+
+    public async Task<bool> DeactivateServicoAsync(int id, CancellationToken cancellationToken)
+    {
+        var servico = await dbContext.Servicos
+            .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (servico is null)
+        {
+            return false;
+        }
+
+        servico.Ativo = false;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    public async Task<IReadOnlyList<ProdutoResponse>> GetProdutosAsync(CancellationToken cancellationToken) =>
+        await dbContext.Produtos
+            .AsNoTracking()
+            .Where(item => item.Ativo)
+            .OrderBy(item => item.Nome)
+            .Select(item => new ProdutoResponse(item.Id, item.Nome, item.Descricao, item.Preco))
+            .ToListAsync(cancellationToken);
+
+    public async Task<ProdutoResponse?> GetProdutoByIdAsync(int id, CancellationToken cancellationToken) =>
+        await dbContext.Produtos
+            .AsNoTracking()
+            .Where(item => item.Id == id && item.Ativo)
+            .Select(item => new ProdutoResponse(item.Id, item.Nome, item.Descricao, item.Preco))
+            .SingleOrDefaultAsync(cancellationToken);
+
+    public async Task<ProdutoResponse> CreateProdutoAsync(
+        CreateProdutoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var produto = new Produto
+        {
+            Nome = request.Nome.Trim(),
+            Descricao = request.Descricao?.Trim(),
+            Preco = request.Preco,
+            Ativo = true
+        };
+        dbContext.Produtos.Add(produto);
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return ToResponse(produto);
+    }
+
+    public async Task<ProdutoResponse?> UpdateProdutoAsync(
+        int id,
+        UpdateProdutoRequest request,
+        CancellationToken cancellationToken)
+    {
+        var produto = await dbContext.Produtos
+            .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (produto is null)
+        {
+            return null;
+        }
+
+        produto.Nome = request.Nome.Trim();
+        produto.Descricao = request.Descricao?.Trim();
+        produto.Preco = request.Preco;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return ToResponse(produto);
+    }
+
+    public async Task<bool> DeactivateProdutoAsync(int id, CancellationToken cancellationToken)
+    {
+        var produto = await dbContext.Produtos
+            .SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
+        if (produto is null)
+        {
+            return false;
+        }
+
+        produto.Ativo = false;
+        await dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     public async Task<IReadOnlyList<BarbeiroResponse>> GetBarbeirosAsync(CancellationToken cancellationToken) =>
@@ -140,6 +237,9 @@ public sealed class CatalogService(AppDbContext dbContext) : ICatalogService
 
     private static ServicoResponse ToResponse(Servico servico) =>
         new(servico.Id, servico.Nome, servico.Preco, servico.DuracaoMinutos);
+
+    private static ProdutoResponse ToResponse(Produto produto) =>
+        new(produto.Id, produto.Nome, produto.Descricao, produto.Preco);
 
     private static BarbeiroResponse ToResponse(Barbeiro barbeiro) =>
         new(barbeiro.Id, barbeiro.Nome, barbeiro.FotoUrl, barbeiro.Ativo);

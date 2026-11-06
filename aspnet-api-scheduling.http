@@ -1,16 +1,63 @@
 @baseUrl = http://127.0.0.1:5194
+@barbeariaId = 1
+@ownerToken = substitua-pelo-access-token
+@provisioningKey = configure-a-chave-no-servidor
 @barbeiroId = 1
 @servicoId = 1
+@produtoId = 1
 @agendamentoId = 1
 
 ### OpenAPI
 GET {{baseUrl}}/openapi/v1.json
 
-### Serviços ativos
+### Provisionar a primeira conta proprietária (somente uma vez)
+POST {{baseUrl}}/api/provisionamento/dono
+X-Provisioning-Key: {{provisioningKey}}
+Content-Type: application/json
+
+{
+  "nomeBarbearia": "Barbearia Exemplo",
+  "slug": "barbearia-exemplo",
+  "nomeDono": "Dono da Barbearia",
+  "email": "dono@example.com",
+  "senha": "TroqueEstaSenha!2026"
+}
+
+### Login para a barbearia selecionada
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "dono@example.com",
+  "senha": "TroqueEstaSenha!2026",
+  "barbeariaId": {{barbeariaId}}
+}
+
+### Listar as barbearias da conta
+GET {{baseUrl}}/api/barbearias
+Authorization: Bearer {{ownerToken}}
+
+### Consultar uma barbearia vinculada à conta
+GET {{baseUrl}}/api/barbearias/{{barbeariaId}}
+Authorization: Bearer {{ownerToken}}
+
+### Criar outra barbearia para a mesma conta
+POST {{baseUrl}}/api/barbearias
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "nome": "Unidade Centro",
+  "slug": "unidade-centro"
+}
+
+### Catálogo de serviços ativos (rotas públicas exigem X-Barbearia-Id)
 GET {{baseUrl}}/api/servicos
+X-Barbearia-Id: {{barbeariaId}}
 
 ### Cadastrar serviço
 POST {{baseUrl}}/api/servicos
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -19,14 +66,32 @@ Content-Type: application/json
   "duracaoMinutos": 30
 }
 
-### Consultar serviço por ID (substitua pelo ID retornado no cadastro)
-GET {{baseUrl}}/api/servicos/4
+### Consultar serviço por ID
+GET {{baseUrl}}/api/servicos/{{servicoId}}
+X-Barbearia-Id: {{barbeariaId}}
+
+### Alterar serviço e preço
+PUT {{baseUrl}}/api/servicos/{{servicoId}}
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "nome": "Barba tradicional",
+  "preco": 39.00,
+  "duracaoMinutos": 30
+}
+
+### Inativar serviço sem apagar o histórico
+PATCH {{baseUrl}}/api/servicos/{{servicoId}}/inativar
+Authorization: Bearer {{ownerToken}}
 
 ### Barbeiros ativos
 GET {{baseUrl}}/api/barbeiros
+X-Barbearia-Id: {{barbeariaId}}
 
 ### Cadastrar barbeiro
 POST {{baseUrl}}/api/barbeiros
+Authorization: Bearer {{ownerToken}}
 Content-Type: application/json
 
 {
@@ -34,14 +99,51 @@ Content-Type: application/json
   "fotoUrl": "https://example.com/fotos/carlos.jpg"
 }
 
-### Consultar barbeiro por ID (substitua pelo ID retornado no cadastro)
-GET {{baseUrl}}/api/barbeiros/3
+### Consultar barbeiro por ID
+GET {{baseUrl}}/api/barbeiros/{{barbeiroId}}
+X-Barbearia-Id: {{barbeariaId}}
 
-### Listar clientes
+### Produtos ativos
+GET {{baseUrl}}/api/produtos
+X-Barbearia-Id: {{barbeariaId}}
+
+### Cadastrar produto
+POST {{baseUrl}}/api/produtos
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "nome": "Pomada modeladora",
+  "descricao": "Fixação média",
+  "preco": 49.90
+}
+
+### Consultar produto por ID
+GET {{baseUrl}}/api/produtos/{{produtoId}}
+X-Barbearia-Id: {{barbeariaId}}
+
+### Alterar produto
+PUT {{baseUrl}}/api/produtos/{{produtoId}}
+Authorization: Bearer {{ownerToken}}
+Content-Type: application/json
+
+{
+  "nome": "Pomada modeladora",
+  "descricao": "Fixação forte",
+  "preco": 54.90
+}
+
+### Inativar produto
+PATCH {{baseUrl}}/api/produtos/{{produtoId}}/inativar
+Authorization: Bearer {{ownerToken}}
+
+### Clientes da barbearia (área administrativa)
 GET {{baseUrl}}/api/clientes
+Authorization: Bearer {{ownerToken}}
 
-### Cadastrar cliente
+### Cadastrar cliente para agendamento
 POST {{baseUrl}}/api/clientes
+X-Barbearia-Id: {{barbeariaId}}
 Content-Type: application/json
 
 {
@@ -50,17 +152,17 @@ Content-Type: application/json
   "email": "maria.oliveira@example.com"
 }
 
-### Consultar cliente por ID (substitua pelo ID retornado no cadastro)
-GET {{baseUrl}}/api/clientes/2
+### Consultar cliente por ID (proprietário)
+GET {{baseUrl}}/api/clientes/1
+Authorization: Bearer {{ownerToken}}
 
-### Horários disponíveis (sem preferência de barbeiro)
+### Horários disponíveis
 GET {{baseUrl}}/api/agendamentos/horarios-disponiveis?data=2026-11-10&servicoId={{servicoId}}
+X-Barbearia-Id: {{barbeariaId}}
 
-### Horários disponíveis para um barbeiro
-GET {{baseUrl}}/api/agendamentos/horarios-disponiveis?data=2026-11-10&servicoId={{servicoId}}&barbeiroId={{barbeiroId}}
-
-### Criar agendamento (cliente de demonstração: clienteId 1)
+### Criar agendamento
 POST {{baseUrl}}/api/agendamentos
+X-Barbearia-Id: {{barbeariaId}}
 Content-Type: application/json
 
 {
@@ -71,14 +173,14 @@ Content-Type: application/json
   "observacao": "Prefiro atendimento em silêncio."
 }
 
-### Buscar agendamento criado
+### Consultar agendamento (proprietário)
 GET {{baseUrl}}/api/agendamentos/{{agendamentoId}}
+Authorization: Bearer {{ownerToken}}
 
-### Agenda diária de barbeiro
+### Consultar agenda do barbeiro (proprietário)
 GET {{baseUrl}}/api/agendamentos/barbeiro/{{barbeiroId}}?data=2026-11-10
+Authorization: Bearer {{ownerToken}}
 
-### Cancelar agendamento
+### Cancelar agendamento (proprietário)
 PATCH {{baseUrl}}/api/agendamentos/{{agendamentoId}}/cancelar
-
-### Erro esperado: barbeiro inexistente
-GET {{baseUrl}}/api/agendamentos/barbeiro/99999?data=2026-11-10
+Authorization: Bearer {{ownerToken}}

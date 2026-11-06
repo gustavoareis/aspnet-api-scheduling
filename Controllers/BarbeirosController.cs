@@ -1,6 +1,7 @@
 using aspnet_api_scheduling.DTOs;
 using aspnet_api_scheduling.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +34,7 @@ public sealed class BarbeirosController(
 
     /// <summary>Cadastra um barbeiro ativo.</summary>
     [HttpPost]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Cadastra um barbeiro")]
     [EndpointDescription("Cria um barbeiro ativo que poderá receber agendamentos.")]
     [ProducesResponseType<BarbeiroResponse>(StatusCodes.Status201Created)]

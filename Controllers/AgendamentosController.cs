@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using aspnet_api_scheduling.DTOs;
 using aspnet_api_scheduling.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -61,6 +62,7 @@ public sealed class AgendamentosController(
 
     /// <summary>Consulta um agendamento por identificador.</summary>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Consulta um agendamento")]
     [EndpointDescription("Retorna os dados do agendamento identificado pelo ID.")]
     [ProducesResponseType<AgendamentoResponse>(StatusCodes.Status200OK)]
@@ -73,6 +75,7 @@ public sealed class AgendamentosController(
 
     /// <summary>Lista os agendamentos não cancelados de um barbeiro em uma data.</summary>
     [HttpGet("barbeiro/{barbeiroId:int}")]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Consulta a agenda do barbeiro")]
     [EndpointDescription("Retorna os agendamentos não cancelados do barbeiro na data informada.")]
     [ProducesResponseType<IReadOnlyList<AgendamentoResponse>>(StatusCodes.Status200OK)]
@@ -88,6 +91,7 @@ public sealed class AgendamentosController(
 
     /// <summary>Cancela um agendamento; a operação é idempotente.</summary>
     [HttpPatch("{id:int}/cancelar")]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Cancela um agendamento")]
     [EndpointDescription("Marca o agendamento como cancelado e libera o intervalo reservado.")]
     [ProducesResponseType<AgendamentoResponse>(StatusCodes.Status200OK)]

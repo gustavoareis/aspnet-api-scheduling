@@ -1,6 +1,7 @@
 using aspnet_api_scheduling.DTOs;
 using aspnet_api_scheduling.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +15,7 @@ public sealed class ClientesController(
 {
     /// <summary>Lista os clientes cadastrados.</summary>
     [HttpGet]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Lista clientes")]
     [EndpointDescription("Retorna os clientes cadastrados para uso em agendamentos.")]
     [ProducesResponseType<IReadOnlyList<ClienteResponse>>(StatusCodes.Status200OK)]
@@ -22,6 +24,7 @@ public sealed class ClientesController(
 
     /// <summary>Consulta um cliente pelo identificador.</summary>
     [HttpGet("{id:int}")]
+    [Authorize(Roles = "Dono")]
     [EndpointSummary("Consulta um cliente")]
     [ProducesResponseType<ClienteResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
